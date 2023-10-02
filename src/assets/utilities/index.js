@@ -37,6 +37,8 @@ const responsiveFontSize = e => {
   return ((height + width) / 100) * e;
 };
 
+const screenHeight = Dimensions.get("screen").height
+
 export const devicePixel = fontSize => {
   let px_1 = (responsiveFontSize(1.1) / 14)
   return px_1 * fontSize
@@ -72,6 +74,7 @@ export {
   responsiveHeight,
   responsiveFontSize,
   isAndroid,
-  isIOS
+  isIOS,
+  screenHeight
 };
 

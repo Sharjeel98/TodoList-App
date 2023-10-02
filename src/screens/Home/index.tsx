@@ -10,10 +10,14 @@ import { setTasks } from '../../redux/user';
 import ViewTask from '../../components/ViewTask';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 
+
+
 interface Task {
   title?: string;
   description?: string;
   date?: string;
+  category?: string;
+  id?: string
 }
 
 interface HomeProps {
@@ -47,19 +51,35 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
             <SvgIcons.optionsIcon height={devicePixel(26)} width={devicePixel(26)} />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption
-              text="Show"
+            <MenuOption style={styles.buttonStyle}
+              onSelect={() => { setSelectedTask(item); setShowTask(true); }}
+            ><Text style={styles.showText}>Show</Text>
+            </MenuOption>
+            <MenuOption style={[styles.buttonStyle, { backgroundColor: "rgba(0,0,0,0.03)" }]}
               onSelect={() => {
-                setSelectedTask(item);
-                setShowTask(true);
+                let filterTasks = [...tasks]
+                filterTasks = tasks?.map((itemSelected: Task, indexSelected: number) => {
+                  if (itemSelected?.id == item?.id) {
+                    return {
+                      ...item,
+                      completed: true
+                    }
+                  }
+                  return {
+                    ...item
+                  }
+                });
+                dispatch(setTasks(filterTasks))
               }}
-            />
+            ><Text style={styles.showText}>Complete</Text>
+            </MenuOption>
             <MenuOption
+              style={styles.buttonStyle}
               onSelect={() => {
-                const filterTasks = tasks.filter((itemSelected: Task, indexSelected: number) => indexSelected !== index);
+                const filterTasks = tasks.filter((itemSelected: Task, indexSelected: number) => itemSelected.id !== item.id);
                 dispatch(setTasks(filterTasks));
               }}>
-              <Text style={{ color: 'red' }}>Delete</Text>
+              <Text style={styles.deleteText}>Delete</Text>
             </MenuOption>
           </MenuOptions>
         </Menu>
@@ -87,7 +107,9 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
       <LinearGradient colors={gradientColors} style={[styles.header, { paddingTop: topFix }]}>
         <View style={styles.leftRow}>
           <View style={styles.addParent}>
-            <TouchableRipple onPress={() => navigation.openDrawer()} rippleColor="#fff" style={styles.touchableArea}>
+            <TouchableRipple onPress={() => {
+              navigation.openDrawer()
+            }} rippleColor="#fff" style={styles.touchableArea}>
               <Image source={AppImages.drawerImg} style={styles.drawerIconStyle} />
             </TouchableRipple>
           </View>
@@ -99,19 +121,20 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
           </TouchableRipple>
         </View>
       </LinearGradient>
-      <View style={styles.secondContainer}>
-        <FlatList data={tasks}
-          renderItem={(rest) => (
-            <RenderItemTasks {...rest} />
-          )}
-          ListEmptyComponent={ListEmptyComponent} />
-      </View>
+      <FlatList
+        contentContainerStyle={styles.secondContainer}
+        data={tasks}
+        renderItem={(rest) => (
+          <RenderItemTasks {...rest} />
+        )}
+        ListEmptyComponent={ListEmptyComponent} />
       <ViewTask
         isModalVisible={showTask}
         setModalVisible={setShowTask}
         title={selectedTask?.title || ''}
         description={selectedTask?.description || ''}
         date={selectedTask?.date || ''}
+        category={selectedTask?.category || ""}
       />
     </View>
   );
@@ -160,12 +183,14 @@ const styles = StyleSheet.create({
     overflow: "hidden"
   },
   secondContainer: {
-    flexGrow: 1,
     borderColor: "#161616",
     // borderWidth: devicePixel(4),
     borderTopWidth: devicePixel(2),
+    paddingBottom: devicePixel(15),
     backgroundColor: "#252525",
+    flexGrow: 1
   },
+
   drawerIconStyle: {
     height: devicePixel(37),
     width: devicePixel(42),
@@ -220,5 +245,20 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center"
+  },
+  buttonStyle: {
+    // backgroundColor: "red",
+    padding: devicePixel(13),
+    backgroundColor: "rgba(0,0,0,0.05)"
+  },
+  showText: {
+    fontFamily: fontFamily.appTextMedium,
+    color: "#000",
+    fontSize: devicePixel(15)
+  },
+  deleteText: {
+    fontFamily: fontFamily.appTextMedium,
+    color: "red",
+    fontSize: devicePixel(15)
   }
 })

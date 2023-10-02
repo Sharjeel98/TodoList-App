@@ -1,8 +1,9 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import Modal from "react-native-modal";
-import { SvgIcons, colors, devicePixel, fontFamily } from '../assets/utilities';
+import { SvgIcons, colors, devicePixel, fontFamily, responsiveHeight, responsiveWidth } from '../assets/utilities';
 import { TouchableRipple } from 'react-native-paper';
+import moment from 'moment';
 
 const ViewTask = ({
     isModalVisible = false,
@@ -13,14 +14,24 @@ const ViewTask = ({
     category = ""
 }) => {
 
+    const ViewComp = ({ itemTitle, itemText }) => {
+        return (
+            <View style={styles.rowCenter}>
+                <Text style={styles.viewTitle}>
+                    {itemTitle}:{"   "}
+                    <Text style={styles.viewText}>
+                        {itemText}
+                    </Text>
+                </Text>
+            </View>
+
+        )
+    }
+
     return (
         <Modal isVisible={isModalVisible}
-            onBackdropPress={() => {
-                setModalVisible?.(false)
-            }}
-            style={{
-                margin: 0, alignItems: "center",
-            }}
+            onBackdropPress={() => { setModalVisible?.(false) }}
+            style={{ margin: 0, alignItems: "center" }}
             animationIn={"fadeIn"}
             animationOut={"fadeOut"}
             animationInTiming={200}
@@ -28,17 +39,12 @@ const ViewTask = ({
             backdropOpacity={0.3}
         >
             <View style={styles.mainContainer}>
-                <View style={styles.headerCont}>
-                    <Text style={[styles.titleStyle]}>{title}</Text>
-                    <Text>
-                        {date}
-                    </Text>
-                </View>
-                <View style={[styles.rowSpaceBetween, { marginTop: devicePixel(15) }]}>
-                    <Text style={styles.alertText}>
-                        Description: {description}
-                    </Text>
-                </View>
+                <ScrollView>
+                    <ViewComp itemTitle={"Title"} itemText={title} />
+                    {category && <ViewComp itemTitle={"Category"} itemText={category} />}
+                    <ViewComp itemTitle={"Date & Time"} itemText={moment(date).format("DD-MM-YYYY hh:mm A")} />
+                    <ViewComp itemTitle={"Description"} itemText={description} />
+                </ScrollView>
             </View>
         </Modal>
     )
@@ -53,12 +59,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center"
     },
-    titleStyle: {
-        // marginTop: devicePixel(20),
-        fontSize: devicePixel(20),
-        color: colors.appBlack,
-        fontFamily: fontFamily.appTextSemibold
-    },
+
     mainContainer: {
         width: "90%",
         backgroundColor: "#fff",
@@ -74,6 +75,7 @@ const styles = StyleSheet.create({
         elevation: 8,
         paddingTop: devicePixel(18),
         paddingBottom: devicePixel(25),
+        maxHeight: responsiveHeight(60)
 
     },
     headerCont: {
@@ -91,5 +93,19 @@ const styles = StyleSheet.create({
         color: colors.appBlack,
         width: "90%",
         fontSize: devicePixel(14)
+    },
+
+    viewTitle: {
+        fontFamily: fontFamily.appTextBold,
+        color: "#000",
+        fontSize: devicePixel(15)
+    },
+    viewText: {
+        fontFamily: fontFamily.appTextRegular,
+        color: "#000",
+        fontSize: devicePixel(14.5),
+    },
+    rowCenter: {
+        marginBottom: devicePixel(4)
     }
 })
